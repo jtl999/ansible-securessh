@@ -1,7 +1,7 @@
 SecureSSH
 =========
 
-A Ansible role  to be run on a freshly installed server as the root user for locking down SSH and iptables
+An Ansible role to be run on a freshly installed server as the root user for locking down SSH and iptables
 
 Testing on Debian 8.6 and Ubuntu 14.04 by me
 
