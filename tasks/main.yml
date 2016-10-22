@@ -1,0 +1,32 @@
+---
+- name: Install iptables-persistent
+  apt: name=iptables-persistent update_cache=yes
+
+- name: Copy iptables rules
+  template: src="{{ role_path }}/templates/iptables" dest=/root/iptables
+
+- name: Apply iptables rules
+  shell: echo -n 'y' | iptables-apply ~/iptables
+
+- name: Save iptables rules
+  shell: iptables-save > /etc/iptables/rules.v4
+
+- name: Backup old SSH configuration/host keys
+  shell: cp -R /etc/ssh /etc/ssh_backup{{ ansible_date_time.date }}
+
+- name: Purge old SSH host keys
+  shell: rm /etc/ssh/ssh_host*
+
+- name: Generate new RSA-4096 key
+  shell: ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N ''
+
+- name: Generate new ED25519 key
+  shell: ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -N ''
+
+- name: Update SSH configuration
+  copy: src="{{ role_path }}/files/sshd_config"  dest=/etc/ssh owner=root group=root
+  notify:
+          - Restart SSH
+
+- name: Clean up
+  file: path=/root/iptables state=absent
